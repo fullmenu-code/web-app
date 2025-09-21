@@ -1,56 +1,66 @@
-# Untitled UI starter kit for Next.js
+﻿# FullMenu
 
-This is an official Untitled UI starter kit for Next.js. Kickstart your Untitled UI project with Next.js in seconds.
+Aplicacion base construida sobre Next.js y el kit de componentes de Untitled UI. Este repositorio deja lista la estructura para un panel o dashboard con autenticacion, theming y acceso a base de datos via Prisma. El objetivo del README es que cualquier agente (humano o automatizado) pueda orientarse rapido sobre las piezas principales del sistema.
 
-## Untitled UI React
+## Panorama rapido
+- **Framework**: Next.js 15 (app router, TypeScript estricto y soporte para React 19).
+- **UI**: Untitled UI React + Tailwind CSS 4; estilos globales en `src/styles`.
+- **Estado global**: React Server Components + providers ligeros para router (`src/providers/router-provider.tsx`) y tema (`src/providers/theme.tsx`).
+- **Autenticacion**: [`better-auth`](https://better-auth.dev/) con adaptador Prisma (`src/lib/auth.ts`) y cliente React (`src/lib/auth-client.ts`).
+- **Base de datos**: Prisma Accelerate apuntando a PostgreSQL (`prisma/schema.prisma`, cliente en `src/lib/prisma.ts`).
 
-[Untitled UI React](https://www.untitledui.com/react) is the world’s largest collection of open-source React UI components. Everything you need to design and develop modern, beautiful interfaces—fast.
+## Estructura esencial
+```
+src/
++- app/             # Entrypoints del app router, layout global y endpoints API.
++- components/      # Componentes reutilizables provistos por Untitled UI.
++- generated/       # Prisma Client generado; no editar a mano.
++- hooks/, utils/   # Hooks y utilidades compartidas por la UI.
++- lib/             # Integraciones (auth, prisma) reutilizables en server actions.
++- providers/       # Providers cliente (router de React Aria, theming con next-themes).
+```
+- **`src/app/layout.tsx`** fija la fuente, estilos globales y envuelve con los providers mencionados.
+- **`src/app/page.tsx`** es un placeholder; reemplazar por la pantalla principal que corresponda.
+- **`src/app/api`** esta reservado para handlers route-based (`better-auth` suele generar endpoints aqui).
 
-Built with React 19.1, Tailwind CSS v4.1, TypeScript 5.8, and React Aria, Untitled UI React components deliver modern performance, type safety, and maintainability.
+## Autenticacion y sesion
+1. `src/lib/auth.ts` inicializa Better Auth con el adaptador Prisma y el proveedor `postgresql`.
+2. `src/lib/prisma.ts` crea una unica instancia de Prisma Client extendida con `withAccelerate` para entornos serverless.
+3. `src/lib/auth-client.ts` expone helpers `signIn`, `signUp`, `signOut` y `useSession` listos para usar en componentes client.
+4. Las tablas de usuario/sesion/cuentas se describen en `prisma/schema.prisma` y se generan con `npx prisma generate`.
 
-[Learn more](https://www.untitledui.com/react) • [Documentation](https://www.untitledui.com/react/docs/introduction) • [Figma](https://www.untitledui.com/figma) • [FAQs](https://www.untitledui.com/faqs)
+## Variables de entorno minimas
+Configura un archivo `.env` (ya incluido en `.gitignore`). Revisar y establecer, como minimo:
+- `DATABASE_URL` -> cadena de conexion a PostgreSQL.
+- Variables de `better-auth` (por ejemplo `AUTH_SECRET`, `AUTH_URL` u otras segun el flujo que habilites).
+- Cualquier clave adicional que necesiten integraciones externas futuras.
 
-## Getting started
+Tras definir los valores, ejecuta:
+```
+# Genera el cliente Prisma segun el schema
+bunx prisma generate
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Opcional: sincroniza el esquema si todavia no hay migraciones
+bunx prisma db push
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts de uso cotidiano
+- `bun install` (o `npm install`): instala dependencias.
+- `bunx prisma generate`: regenera el cliente Prisma al modificar `schema.prisma`.
+- `bunx prisma db push`: aplica el esquema actual a la base configurada.
+- `bun run dev` (`npm run dev` / `pnpm dev` / `yarn dev`): levanta el servidor de desarrollo en `http://localhost:3000`.
+- `bun run build` / `bun run start`: build y arranque en modo produccion.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Flujo de desarrollo sugerido
+1. Clonar el repo y copiar `.env.example` -> `.env` (si no existe, crear uno siguiendo la seccion anterior).
+2. Instalar dependencias con el gestor preferido (el lockfile principal es `bun.lockb`).
+3. Ejecutar `bunx prisma generate` para producir el cliente en `src/generated/prisma`.
+4. Levantar `bun run dev` y construir la UI dentro de `src/app` y `src/components`.
+5. Cuando se agreguen recursos protegidos, usar los helpers de `auth-client` para controlar sesiones en componentes cliente.
 
-## Resources
+## Referencias utiles
+- Documentacion Untitled UI React: <https://www.untitledui.com/react>
+- Better Auth (adaptador Prisma + Next.js): <https://better-auth.dev/docs>
+- Prisma Accelerate: <https://www.prisma.io/accelerate>
 
-Untitled UI React is built on top of [Untitled UI Figma](https://www.untitledui.com/figma), the world's largest and most popular Figma UI kit and design system. Explore more:
-
-**[Untitled UI Figma:](https://www.untitledui.com/react/resources/figma-files)** The world's largest Figma UI kit and design system.
-<br/>
-**[Untitled UI Icons:](https://www.untitledui.com/react/resources/icons)** A clean, consistent, and neutral icon library crafted specifically for modern UI design.
-<br/>
-**[Untitled UI file icons:](https://www.untitledui.com/react/resources/file-icons)** Free file format icons, designed specifically for modern web and UI design.
-<br/>
-**[Untitled UI flag icons:](https://www.untitledui.com/react/resources/flag-icons)** Free country flag icons, designed specifically for modern web and UI design.
-<br/>
-**[Untitled UI avatars:](https://www.untitledui.com/react/resources/avatars)** Free placeholder user avatars and profile pictures to use in your projects.
-<br/>
-**[Untitled UI logos:](https://www.untitledui.com/react/resources/logos)** Free fictional company logos to use in your projects.
-
-## License
-
-Untitled UI React open-source components are licensed under the MIT license, which means you can use them for free in unlimited commercial projects.
-
-> [!NOTE]
-> This license applies only to the starter kit and to the components included in this open-source repository. [Untitled UI React PRO](https://www.untitledui.com/react) includes hundreds more advanced UI components and page examples and is subject to a separate [license agreement](https://www.untitledui.com/license).
-
-[Untitled UI license agreement →](https://www.untitledui.com/license)
-
-[Frequently asked questions →](https://www.untitledui.com/faqs)
+> Nota: este proyecto parte de un starter kit. Antes de desplegar a produccion, revisa permisos, claves y politicas de sesion segun tus necesidades reales.
